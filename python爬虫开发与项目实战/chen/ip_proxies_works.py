@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+四进程爬虫，爬取orcid网址的信息，转存至works表
+@Author: lushaoxiao
+@Date: 2019/3/31
+@IDE: PyCharm
+"""
 import requests
 import json
 from mysql import connector
@@ -5,8 +12,11 @@ import ip_proxies
 import multiprocessing as mp
 import uuid
 
+# 获取works信息json数据链接
 workurl = "/worksPage.json?offset=0&sort=date&sortAsc=false"
+# 论文地址前链接
 basePaperUrl = "https://doi.org/"
+# 数据库设置
 dbuser = "root"
 dbpassword = ""
 dbname = "orcid"
@@ -18,6 +28,11 @@ headers = {
 }
 
 def get_work_info(urls):
+    '''
+    获取works json数据信息
+    :param urls: works信息url列表
+    :return:
+    '''
     cnx = connector.connect(user=dbuser, database=dbname, password=dbpassword)
     insert_query = (
             "INSERT INTO " + tableName +
@@ -25,7 +40,8 @@ def get_work_info(urls):
             "VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)"
     )
     cursor = cnx.cursor()
-    cnt = 1
+    cnt = 0
+    # 获取代理
     proxy = None
     while proxy is None:
         proxy = ip_proxies.get_proxies()
@@ -39,6 +55,11 @@ def get_work_info(urls):
     for url in urls:
         ff = True
         get_cnt = 1
+        """
+            获取works网址信息，出错原因：
+            1.当前网络问题，尝试获取3次
+            2.当前代理出错，尝试换一个IP代理
+        """
         while ff and get_cnt <= 3:
             try:
                 req = requests.get(url=url + workurl, headers=headers, proxies=proxy, timeout=5)
@@ -53,6 +74,7 @@ def get_work_info(urls):
             while proxy is None:
                 proxy = ip_proxies.get_proxies()
             continue
+        # 获取成功，开始解析json
         jsondata = json.loads(req.content)
         groups = jsondata['groups']
         for item in groups:
@@ -104,6 +126,7 @@ def get_work_info(urls):
     cnx.close()
 
 if __name__ == '__main__':
+    # 开始从数据库获取所有url信息，转换为列表
     cnx = connector.connect(user=dbuser, database=dbname, password=dbpassword)
     query = "SELECT id FROM " + infoTableName
     cursor = cnx.cursor()
@@ -111,14 +134,20 @@ if __name__ == '__main__':
     lt = cursor.fetchall()
     cursor.close()
     cnx.close()
+    # 所有url计数
     totalnum = len(lt)
     cnt = 0
+    # 一次主进程完成需要爬取的url总数
     base = 100
+    # 一个进程需要爬取的url链接数
     onecount = 25
+    # 清洗数据库查询的列表，自己查看lt列表内容就能明白
     records = []
     for x in lt:
         records.append(x[0])
+    # 爬取所有url
     while cnt < int(totalnum/base):
+        # 四进程并发执行
         p1 = mp.Process(target=get_work_info, args=(records[cnt * base + 0 :cnt * base + onecount + 0],), name="p1")
         p2 = mp.Process(target=get_work_info, args=(records[cnt * base + 25:cnt * base + onecount + 25],), name="p2")
         p3 = mp.Process(target=get_work_info, args=(records[cnt * base + 50:cnt * base + onecount + 50],), name="p3")
