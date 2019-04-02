@@ -1,0 +1,8 @@
+fromnum: 2017585031
+totalnum: 50
+ip: 172.247.33.194
+serverport: 5000
+passwd: qqaazz123
+encrpty: chacha20
+timeout: 5
+localport: 1080

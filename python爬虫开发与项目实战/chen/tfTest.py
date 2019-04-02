@@ -1,0 +1,188 @@
+import os
+import tensorflow as tf
+from PIL import Image
+import numpy as np
+
+# 验证码存放路径
+IMAGE_PATH = "./pictest/"
+# 验证码图片宽度
+IMAGE_WIDTH = 60
+# 验证码图片高度
+IMAGE_HEIGHT = 24
+
+# 验证集，用于模型验证的验证码图片的文件名
+VALIDATION_IMAGE_NAME = []
+# 存放训练好的模型的路径
+MODEL_SAVE_PATH = './models/'
+
+CHAR_SET_LEN = 10
+CAPTCHA_LEN = 4
+
+
+def get_image_file_name(imgPath=IMAGE_PATH):
+    fileName = []
+    total = 0
+    for filePath in os.listdir(imgPath):
+        print(filePath)
+        captcha_name = filePath.split('/')[-1]
+        # captcha_name = captcha_name.split('.')[0]
+        print(captcha_name)
+        fileName.append(captcha_name)
+        total += 1
+    return fileName, total
+
+
+# 将验证码转换为训练时用的标签向量，维数是 40
+# 例如，如果验证码是 ‘0296’ ，则对应的标签是
+# [1 0 0 0 0 0 0 0 0 0
+#  0 0 1 0 0 0 0 0 0 0
+#  0 0 0 0 0 0 0 0 0 1
+#  0 0 0 0 0 0 1 0 0 0]
+def name2label(name):
+    label = np.zeros(CAPTCHA_LEN * CHAR_SET_LEN)
+    for i, c in enumerate(name):
+        idx = i * CHAR_SET_LEN + ord(c) - ord('0')
+        label[idx] = 1
+    return label
+
+
+# 取得验证码图片的数据以及它的标签
+def get_data_and_label(fileName, filePath=IMAGE_PATH):
+    pathName = os.path.join(filePath, fileName)
+    img = Image.open(pathName)
+    # 转为灰度图
+    img = img.convert("L")
+    image_array = np.array(img)
+    image_data = image_array.flatten() / 255
+    image_label = name2label(fileName[0:CAPTCHA_LEN])
+    return image_data, image_label
+
+
+# 生成一个训练batch
+def get_next_batch(batchSize=32, step=0):
+    batch_data = np.zeros([batchSize, IMAGE_WIDTH * IMAGE_HEIGHT])
+    batch_label = np.zeros([batchSize, CAPTCHA_LEN * CHAR_SET_LEN])
+    fileNameList = VALIDATION_IMAGE_NAME
+
+    totalNumber = len(fileNameList)
+    indexStart = step * batchSize
+    for i in range(batchSize):
+        index = (i + indexStart) % totalNumber
+        name = fileNameList[index]
+        img_data, img_label = get_data_and_label(name)
+        batch_data[i, :] = img_data
+        batch_label[i, :] = img_label
+
+    return batch_data, batch_label
+
+
+# 构建卷积神经网络并训练
+def validate_data_with_CNN():
+    # 初始化权值
+    def weight_variable(shape, name='weight'):
+        init = tf.truncated_normal(shape, stddev=0.1)
+        var = tf.Variable(initial_value=init, name=name)
+        return var
+
+    # 初始化偏置
+    def bias_variable(shape, name='bias'):
+        init = tf.constant(0.1, shape=shape)
+        var = tf.Variable(init, name=name)
+        return var
+
+    # 卷积
+    def conv2d(x, W, name='conv2d'):
+        return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME', name=name)
+
+    # 池化
+    def max_pool_2X2(x, name='maxpool'):
+        return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name=name)
+
+        # 输入层
+
+    # 请注意 X 的 name，在测试model时会用到它
+    X = tf.placeholder(tf.float32, [None, IMAGE_WIDTH * IMAGE_HEIGHT], name='data-input')
+    Y = tf.placeholder(tf.float32, [None, CAPTCHA_LEN * CHAR_SET_LEN], name='label-input')
+    x_input = tf.reshape(X, [-1, IMAGE_HEIGHT, IMAGE_WIDTH, 1], name='x-input')
+    # 第一层卷积
+    W_conv1 = weight_variable([5, 5, 1, 32], 'W_conv1')
+    B_conv1 = bias_variable([32], 'B_conv1')
+    conv1 = tf.nn.relu(conv2d(x_input, W_conv1, 'conv1') + B_conv1)
+    conv1 = max_pool_2X2(conv1, 'conv1-pool')
+    # 第二层卷积
+    W_conv2 = weight_variable([5, 5, 32, 64], 'W_conv2')
+    B_conv2 = bias_variable([64], 'B_conv2')
+    conv2 = tf.nn.relu(conv2d(conv1, W_conv2, 'conv2') + B_conv2)
+    conv2 = max_pool_2X2(conv2, 'conv2-pool')
+    # 第三层卷积
+    W_conv3 = weight_variable([5, 5, 64, 64], 'W_conv3')
+    B_conv3 = bias_variable([64], 'B_conv3')
+    conv3 = tf.nn.relu(conv2d(conv2, W_conv3, 'conv3') + B_conv3)
+    conv3 = max_pool_2X2(conv3, 'conv3-pool')
+    # 全链接层
+    # 每次池化后，图片的宽度和高度均缩小为原来的一半，进过上面的三次池化，宽度和高度均缩小8倍
+    W_fc1 = weight_variable([8 * 3 * 64, 1024], 'W_fc1')
+    B_fc1 = bias_variable([1024], 'B_fc1')
+    fc1 = tf.reshape(conv3, [-1, W_fc1.get_shape().as_list()[0]])
+    fc1 = tf.nn.relu(tf.add(tf.matmul(fc1, W_fc1), B_fc1))
+    # 输出层
+    W_fc2 = weight_variable([1024, CAPTCHA_LEN * CHAR_SET_LEN], 'W_fc2')
+    B_fc2 = bias_variable([CAPTCHA_LEN * CHAR_SET_LEN], 'B_fc2')
+    output = tf.add(tf.matmul(fc1, W_fc2), B_fc2, 'output')
+
+    predict = tf.reshape(output, [-1, CAPTCHA_LEN, CHAR_SET_LEN], name='predict')
+    labels = tf.reshape(Y, [-1, CAPTCHA_LEN, CHAR_SET_LEN], name='labels')
+
+    # 预测结果
+    # 请注意 predict_max_idx 的 name，在测试model时会用到它
+    predict_max_idx = tf.argmax(predict, axis=2, name='predict_max_idx')
+    labels_max_idx = tf.argmax(labels, axis=2, name='labels_max_idx')
+    predict_correct_vec = tf.equal(predict_max_idx, labels_max_idx)
+    accuracy = tf.reduce_mean(tf.cast(predict_correct_vec, tf.float32))
+
+    saver = tf.train.Saver()
+    config = tf.ConfigProto(allow_soft_placement=True,
+                            log_device_placement=True)
+    config.gpu_options.per_process_gpu_memory_fraction = 0.6
+    with tf.Session(config=config) as sess:
+        sess.run(tf.global_variables_initializer())
+        ckpt = tf.train.get_checkpoint_state(MODEL_SAVE_PATH)  # 获取checkpoints对象
+        if ckpt and ckpt.model_checkpoint_path:  ##判断ckpt是否为空，若不为空，才进行模型的加载，否则从头开始训练
+            print("正在恢复参数.....")
+            saver.restore(sess, ckpt.model_checkpoint_path)  # 恢复保存的神经网络结构，实现断点续训
+            print("参数恢复完成.")
+        steps = 0
+        test_data, test_label = get_next_batch(20, steps)
+        acc = sess.run(accuracy, feed_dict={X: test_data, Y: test_label})
+
+        predict_test = sess.run(predict_max_idx, feed_dict={X:test_data, Y: test_label})
+        data = predict_test.flatten().tolist()
+        prelab = []
+        pre = ""
+        for i in range(len(data)):
+            if i % 4 == 0 and i != 0:
+                prelab.append(pre)
+                pre = ""
+            pre = pre + str(data[i])
+        prelab.append(pre)
+        # print(prelab)
+
+        testlab = []
+        data = test_label.reshape((-1, 4, 10))
+        for item1 in data:
+            lab = ""
+            for item2 in item1:
+                ind = np.argmax(item2)
+                lab = lab + str(ind)
+            testlab.append(lab)
+        # print(testlab)
+
+        for item1, item2 in zip(prelab, testlab):
+            print("{}<->{}:{}".format(item1, item2, item1 == item2))
+        print("accuracy:{}".format(acc))
+
+
+if __name__ == '__main__':
+    image_filename_list, total = get_image_file_name(IMAGE_PATH)
+    VALIDATION_IMAGE_NAME = image_filename_list
+    validate_data_with_CNN()
