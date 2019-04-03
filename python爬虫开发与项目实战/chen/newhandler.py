@@ -37,11 +37,11 @@ if __name__ == '__main__':
             level.append('B')
         else:
             level.append('D')
-    allinfo,realnum,fromStuNum = nl.init(needLogin=False)
+    allinfo,realnum= nl.init()
     df = pd.DataFrame(allinfo,columns=['User','Accept','Submit','Rate','DuplicatedRate'],dtype=str)
-    # fpddata['level'] = level
     fpddata.loc[:,'level'] = level
     pd.set_option('display.max_columns',10)
     # 根据班级信息和考试情况，选出符合本班级的考试学生
     fpddata = fpddata[fpddata['User'].isin(df['User'])]
     df = df[df['User'].isin(fpddata['User'])]
+

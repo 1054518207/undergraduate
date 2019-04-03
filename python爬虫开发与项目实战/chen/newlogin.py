@@ -15,8 +15,9 @@ verify_code_url = "http://202.194.119.110/vcode.php"
 imgname = "code.png"
 password = '1054518207a.'
 user_id = '201558501224'
-fromStuNum = "2017585011"
+baseFromStuNum = "2017585011"
 infoUrl = "http://202.194.119.110/ranklist.php?prefix="
+# 假定一个班人数最多为60
 totalNum = 60
 
 # 验证码图片宽度
@@ -32,12 +33,19 @@ CAPTCHA_LEN = 4
 
 # 取得验证码图片的数据以及它的标签
 def get_imgdata(fileName=None, Sess=None):
+    '''
+    获取图片
+    :param fileName: 图片名称
+    :param Sess: request请求
+    :return: 转化为灰度图之后的图像
+    '''
     if Sess is None:
         Sess = requests.Session()
     if fileName is None:
         raise RuntimeError("文件名不能为空")
     Sess.get(login_url, headers=headers)
     code = Sess.get(verify_code_url, headers=headers)
+    # 写图片文件
     with open(fileName, 'wb') as f:
         f.write(code.content)
 
@@ -129,6 +137,12 @@ def validate_data_with_CNN(image_data=None):
 
 
 def trylogin(vcode, sess=None):
+    '''
+    尝试登录OJ
+    :param vcode: 预测验证码
+    :param sess:  request会话
+    :return:
+    '''
     if sess is None:
         raise RuntimeError("会话不能为None")
     md = hashlib.md5()
@@ -180,15 +194,17 @@ def get_stu_info(stuNum, sess):
         return None
 
 
-def init(needLogin = False):
+def init(needLogin = False , custome = False , stuNum = None):
     '''
     获取所有信息
     :param needLogin: 是否需要登录
-    :return: 返回 list 类型数组信息
+    :param custome: 是否需要自定义爬取学生信息
+    :param stuNum: 自定义爬取学生信息学号 eg：2018585011
+    :return: 返回 list 类型所有学生信息， 这个班级的学生总人数
     '''
-# if __name__ == '__main__':
     S = requests.Session()
-    # needLogin = False
+    if custome and stuNum is None:
+        raise RuntimeError("未指定学生信息编号")
     if needLogin:
         print("正在尝试登录....")
         res = ""
@@ -200,13 +216,14 @@ def init(needLogin = False):
             for num in predict:
                 strpre = strpre + str(num)
             res = trylogin(strpre, S)
+            # 登录成功之后返回整个主页，主页面字符数目一定大于500（随便给的）
             if len(res) > 500:
                 print("登录成功")
         os.remove(imgname)
     allinfo = []
     realnum = 0
     for ind in range(1, totalNum):
-        stunum = fromStuNum
+        stunum = baseFromStuNum if not custome else stuNum
         if ind < 10:
             stunum = stunum + "0" + str(ind)
         else:
@@ -219,4 +236,4 @@ def init(needLogin = False):
         # print("{}信息为：{}".format(stunum, info))
     # print(allinfo)
     # npdata = np.array(allinfo)
-    return allinfo,realnum,fromStuNum
+    return allinfo,realnum

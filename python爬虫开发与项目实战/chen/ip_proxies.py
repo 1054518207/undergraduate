@@ -211,7 +211,6 @@ def start_crawl(start):
     cnx.close()
     print("{}进程数据库写入完成".format(name))
 
-
 def delete_duplicated_id(tbname=None):
     '''
     后期使用，去除MySQL数据库中重复id
