@@ -82,3 +82,8 @@ hs_err_pid*
 
 # JRebel
 rebel.xml
+
+# Templates files
+bower_components
+dist
+plugins
