@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.ytu.chen.pro.DAO.SolutionMapper">
+  <resultMap id="BaseResultMap" type="edu.ytu.chen.pro.entity.Solution">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="solution_id" jdbcType="INTEGER" property="solutionId" />
+    <result column="problem_id" jdbcType="INTEGER" property="problemId" />
+    <result column="user_id" jdbcType="CHAR" property="userId" />
+    <result column="time" jdbcType="INTEGER" property="time" />
+    <result column="memory" jdbcType="INTEGER" property="memory" />
+    <result column="in_date" jdbcType="TIMESTAMP" property="inDate" />
+    <result column="result" jdbcType="SMALLINT" property="result" />
+    <result column="language" jdbcType="INTEGER" property="language" />
+    <result column="ip" jdbcType="CHAR" property="ip" />
+    <result column="contest_id" jdbcType="INTEGER" property="contestId" />
+    <result column="valid" jdbcType="TINYINT" property="valid" />
+    <result column="num" jdbcType="TINYINT" property="num" />
+    <result column="code_length" jdbcType="INTEGER" property="codeLength" />
+    <result column="judgetime" jdbcType="TIMESTAMP" property="judgetime" />
+    <result column="pass_rate" jdbcType="DECIMAL" property="passRate" />
+    <result column="lint_error" jdbcType="INTEGER" property="lintError" />
+    <result column="judger" jdbcType="CHAR" property="judger" />
+  </resultMap>
+</mapper>

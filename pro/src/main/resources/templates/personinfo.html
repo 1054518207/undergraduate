@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>个人信息展示</title>
+    <th:block th:include="includes/head :: links"></th:block>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+    <th:block th:include="includes/leftside :: side"></th:block>
+
+    <!-- Left side column. contains the logo and sidebar -->
+    <aside class="main-sidebar">
+        <!-- sidebar: style can be found in sidebar.less -->
+        <section class="sidebar">
+            <!-- sidebar menu: : style can be found in sidebar.less -->
+            <ul class="sidebar-menu" data-widget="tree">
+                <li class="header">主导航</li>
+                <li class="active treeview">
+                    <a href="#">
+                        <i class="fa fa-dashboard"></i> <span>功能选择</span>
+                        <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a th:href="@{index}"><i class="fa fa-circle-o"></i> 主页面</a></li>
+                        <li class="active"><a th:href="@{personinfo}"><i class="fa fa-circle-o"></i> 个人信息情况查询</a></li>
+                    </ul>
+                </li>
+                <li><a th:href="@{predict}"><i class="fa fa-commenting"></i> <span>信息预测</span></a></li>
+            </ul>
+        </section>
+        <!-- /.sidebar -->
+    </aside>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+
+        <!-- Main content -->
+        <section class="content">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">情况汇总</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                </button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="box box-default">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">近期提交与正确情况</h3>
+                                        </div>
+                                        <div class="box-body">
+                                            <div class="chart" id="schart">
+                                                <!-- Submit Chart Canvas -->
+                                                <canvas id="personInfoChart" style="height: 185px;"></canvas>
+                                            </div>
+                                            <!-- /.chart-responsive -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- /.col -->
+                                <div class="col-md-4">
+
+                                    <div class="box box-default">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">统计信息</h3>
+                                        </div>
+                                        <!-- /.box-header -->
+                                        <div class="box-body">
+                                            <div class="row">
+                                                <div class="col-md-8">
+                                                    <div class="chart-responsive" id="pieDiv">
+                                                        <canvas id="pieChart" height="180"></canvas>
+                                                    </div>
+                                                    <!-- ./chart-responsive -->
+                                                </div>
+                                                <!-- /.col -->
+                                                <div class="col-md-4">
+                                                    <ul class="chart-legend clearfix">
+                                                        <li><i class="fa fa-circle-o" style="color: #00a65a"></i> Accept</li>
+                                                        <li><i class="fa fa-circle-o" style="color: #f39c12"></i> Presentation Error</li>
+                                                        <li><i class="fa fa-circle-o" style="color: #f56954"></i> Wrong Answer</li>
+                                                        <li><i class="fa fa-circle-o" style="color: #00c0ef"></i> Time Limit Exceeded</li>
+                                                        <li><i class="fa fa-circle-o" style="color: #66eeaa"></i> Memory Limit Exceeded</li>
+                                                        <li><i class="fa fa-circle-o" style="color: #3c8dbc"></i> Output Limit Exceeded</li>
+                                                        <li><i class="fa fa-circle-o" style="color: #d2d6de"></i> Runtime Error</li>
+                                                        <li><i class="fa fa-circle-o" style="color: #9c6c6c"></i> Compile Error</li>
+                                                        <li><i class="fa fa-circle-o" style="color: #000000"></i> Test Run</li>
+                                                    </ul>
+                                                </div>
+                                                <!-- /.col -->
+                                            </div>
+                                            <!-- /.row -->
+                                        </div>
+                                        <!-- /.box-body -->
+                                    </div>
+                                    <!-- /.box -->
+                                </div>
+                                <!-- /.col -->
+                            </div>
+                            <!-- /.row -->
+                        </div>
+                        <!-- ./box-body -->
+                        <div class="box-footer">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <form id="stuNumForm">
+                                        <div class="form-group">
+                                            <label for="stuNum">学号：</label>
+                                            <input type="text" class="form-control" id="stuNum" name="stuNum" placeholder="201858501101">
+                                        </div>
+                                    </form>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <div style="margin-top: 25px;margin-right: 30px" class="text-right">
+                                        <button class="btn btn-success" id="show">展示</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.row -->
+                        </div>
+                        <!-- /.box-footer -->
+                    </div>
+                    <!-- /.box -->
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+
+            <!-- Main row -->
+            <!-- /.row -->
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+
+    <th:block th:include="includes/footer :: footer"></th:block>
+</div>
+<th:block th:include="includes/foot :: scripts"></th:block>
+<script th:src="@{/plugins/jquery-validation/jquery.validate.min.js}"></script>
+<script th:inline="javascript">
+
+    var chartOptions = {
+        // Boolean - If we should show the scale at all
+        showScale               : true,
+        // Boolean - Whether grid lines are shown across the chart
+        scaleShowGridLines      : false,
+        // String - Colour of the grid lines
+        scaleGridLineColor      : 'rgba(0,0,0,.05)',
+        // Number - Width of the grid lines
+        scaleGridLineWidth      : 1,
+        // Boolean - Whether to show horizontal lines (except X axis)
+        scaleShowHorizontalLines: true,
+        // Boolean - Whether to show vertical lines (except Y axis)
+        scaleShowVerticalLines  : true,
+        // Boolean - Whether the line is curved between points
+        bezierCurve             : true,
+        // Number - Tension of the bezier curve between points
+        bezierCurveTension      : 0.3,
+        // Boolean - Whether to show a dot for each point
+        pointDot                : false,
+        // Number - Radius of each point dot in pixels
+        pointDotRadius          : 4,
+        // Number - Pixel width of point dot stroke
+        pointDotStrokeWidth     : 1,
+        // Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+        pointHitDetectionRadius : 20,
+        // Boolean - Whether to show a stroke for datasets
+        datasetStroke           : true,
+        // Number - Pixel width of dataset stroke
+        datasetStrokeWidth      : 2,
+        // Boolean - Whether to fill the dataset with a color
+        datasetFill             : true,
+        // String - A legend template
+        legendTemplate          : '<ul class=\'legend\'><li><span style=\'background-color:red\'></span>Submit</li></ul>',
+        // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+        maintainAspectRatio     : true,
+        // Boolean - whether to make the chart responsive to window resizing
+        responsive              : true
+    };
+
+    var pieOptions     = {
+        // Boolean - Whether we should show a stroke on each segment
+        segmentShowStroke    : true,
+        // String - The colour of each segment stroke
+        segmentStrokeColor   : '#fff',
+        // Number - The width of each segment stroke
+        segmentStrokeWidth   : 1,
+        // Number - The percentage of the chart that we cut out of the middle
+        percentageInnerCutout: 50, // This is 0 for Pie charts
+        // Number - Amount of animation steps
+        animationSteps       : 100,
+        // String - Animation easing effect
+        animationEasing      : 'easeOutBounce',
+        // Boolean - Whether we animate the rotation of the Doughnut
+        animateRotate        : true,
+        // Boolean - Whether we animate scaling the Doughnut from the centre
+        animateScale         : false,
+        // Boolean - whether to make the chart responsive to window resizing
+        responsive           : true,
+        // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+        maintainAspectRatio  : false
+    };
+
+    $('#show').bind("click",function () {
+        var stuNum = $('#stuNum').val();
+        if(stuNum.length !== 12)
+            return;
+        $.ajax({
+            url:"/api/allInfo?stuNum="+stuNum,
+            context:document.body,
+            success:function (data) {
+                var allData = data.split("|");
+                var labels = allData[0];
+                var accept = allData[1];
+                var submit = allData[2];
+                $('#personInfoChart').remove();
+                $('#schart').append("<canvas id=\"personInfoChart\" style=\"height: 185px;\"></canvas>\n" +
+                    "");
+                var chartCanvas = $('#personInfoChart').get(0).getContext('2d');
+                var sChart       = new Chart(chartCanvas);
+                var chartData = {
+                    labels  : eval(labels),
+                    datasets: [
+                        {
+                            label               : 'Accept Number',
+                            fillColor           : 'rgb(210, 214, 222)',
+                            strokeColor         : 'rgb(210, 214, 222)',
+                            pointColor          : 'rgb(210, 214, 222)',
+                            pointStrokeColor    : '#c1c7d1',
+                            pointHighlightFill  : '#fff',
+                            pointHighlightStroke: 'rgb(220,220,220)',
+                            data                : eval(accept)
+                        },
+                        {
+                            label               : 'Submit Number',
+                            fillColor           : 'rgba(60,141,188,0.4)',
+                            strokeColor         : 'rgba(60,141,188,0.4)',
+                            pointColor          : '#3b8bba',
+                            pointStrokeColor    : 'rgba(60,141,188,1)',
+                            pointHighlightFill  : '#fff',
+                            pointHighlightStroke: 'rgba(60,141,188,1)',
+                            data                : eval(submit)
+                        }
+                    ]
+                };
+                sChart.Line(chartData, chartOptions);
+            },
+            fail:function () {
+                alert("submit fail")
+            }
+        });
+        $.ajax({
+            url:"/api/piedata?stuNum="+stuNum,
+            success:function (data) {
+                $('#pieChart').remove();
+                $('#pieDiv').append("<canvas id=\"pieChart\" height=\"180\"></canvas>");
+                var pieChartCanvas = $('#pieChart').get(0).getContext('2d');
+                var pieChart = new Chart(pieChartCanvas);
+                pieChart.Doughnut(eval(data), pieOptions);
+                $('#stuNum').parent().removeClass("has-error");
+            },
+            fail:function () {
+                alert("pie Error")
+            }
+        })
+    });
+
+    $('#stuNumForm').validate({
+        rules:{
+          stuNum:{
+              required: true,
+              minlength:12,
+              maxlength:12
+          }
+        },
+        messages:{
+            stuNum:{
+                required:"请输入学号",
+                minlength:"请输入12位学号",
+                maxlength:"请输入12位学号"
+            }
+        },
+        errorElement: 'span',
+        errorClass: 'help-block',
+        errorPlacement: function (error, element) {
+            element.parent().attr("class", "form-group has-error");
+            error.insertAfter(element);
+        }
+    });
+</script>
+</body>
+</html>

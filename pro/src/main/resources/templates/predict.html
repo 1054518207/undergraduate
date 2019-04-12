@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>预测信息</title>
+    <th:block th:include="includes/head :: links"></th:block>
+    <link th:href='@{/plugins/jquery-svg3dtagcloud-plugin/svgFontLink.css}' rel='stylesheet' type='text/css'>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+    <div class="wrapper">
+        <th:block th:include="includes/leftside :: side"></th:block>
+
+        <!-- Left side column. contains the logo and sidebar -->
+        <aside class="main-sidebar">
+            <!-- sidebar: style can be found in sidebar.less -->
+            <section class="sidebar">
+                <!-- sidebar menu: : style can be found in sidebar.less -->
+                <ul class="sidebar-menu" data-widget="tree">
+                    <li class="header">主导航</li>
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-dashboard"></i> <span>功能选择</span>
+                            <span class="pull-right-container">
+                      <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li class="active"><a th:href="@{index}"><i class="fa fa-circle-o"></i> 主页面</a></li>
+                            <li><a th:href="@{personinfo}"><i class="fa fa-circle-o"></i> 个人信息情况查询</a></li>
+                        </ul>
+                    </li>
+                    <li class="active"><a th:href="@{predict}"><i class="fa fa-commenting"></i> <span>信息预测</span></a></li>
+                </ul>
+            </section>
+            <!-- /.sidebar -->
+        </aside>
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>
+                    信息预测
+                    <small>展示</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a th:href="@{index}"><i class="fa fa-dashboard"></i> 主页</a></li>
+                    <li class="active">结果预测</li>
+                </ol>
+            </section>
+
+            <!-- Main content -->
+            <section class="content">
+
+                <!-- SELECT2 -->
+                <div class="box box-default">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">选择</h3>
+
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+<!--                            <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-remove"></i></button>-->
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>样本班级</label>
+                                    <select class="form-control select2" style="width: 100%;">
+                                        <option selected="selected">计171</option>
+                                    </select>
+                                </div>
+                                <!-- /.form-group -->
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>预测班级</label>
+                                    <select class="form-control select2"  style="width: 100%;">
+                                        <option selected="selected">计175</option>
+                                    </select>
+                                </div>
+                                <!-- /.form-group -->
+                            </div>
+                            <!-- /.col -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                    <!-- /.box-body -->
+                    <div class="box-footer">
+                        <div class="row text-center">
+                            <button class="btn btn-success" id="getInfo">提交</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SELECT2 Tagclouod -->
+                <div id="tagBox" class="box box-default collapsed-box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">标签云</h3>
+
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-6 text-center">
+                                <h4 class="box-title">预测为A等级同学</h4>
+                                <div id='holder'></div>
+                                <!-- /.form-group -->
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-md-6 text-center">
+                                <h4 class="box-title">预测为D等级同学</h4>
+                                <div id='holder2'></div>
+                                <!-- /.form-group -->
+                            </div>
+                            <!-- /.col -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+
+                <!-- /.box -->
+            </section>
+        </div>
+        <!-- /.content-wrapper -->
+        <th:block th:include="includes/footer :: footer"></th:block>
+    </div>
+</body>
+<th:block th:include="includes/foot :: scripts"></th:block>
+<script th:src="@{/plugins/jquery-svg3dtagcloud-plugin/jquery.svg3dtagcloud.min.js}"></script>
+<script>
+
+    var settings = {
+
+        entries:entries,
+        width: 480,
+        height: 480,
+        radius: '65%',
+        radiusMin: 75,
+        bgDraw: true,
+        bgColor: '#fff',
+        opacityOver: 1.00,
+        opacityOut: 0.05,
+        opacitySpeed: 6,
+        fov: 800,
+        speed: 1,
+        fontFamily: 'Oswald, Arial, sans-serif',
+        fontSize: '32',
+        fontColor: '#111',
+        fontWeight: 'normal',//bold
+        fontStyle: 'normal',//italic
+        fontStretch: 'normal',//wider, narrower, ultra-condensed, extra-condensed, condensed, semi-condensed, semi-expanded, expanded, extra-expanded, ultra-expanded
+        fontToUpperCase: true,
+        tooltipFontFamily: 'Oswald, Arial, sans-serif',
+        tooltipFontSize: '11',
+        tooltipFontColor: '#fff',
+        tooltipFontWeight: 'normal',//bold
+        tooltipFontStyle: 'normal',//italic
+        tooltipFontStretch: 'normal',//wider, narrower, ultra-condensed, extra-condensed, condensed, semi-condensed, semi-expanded, expanded, extra-expanded, ultra-expanded
+        tooltipFontToUpperCase: false,
+        tooltipTextAnchor: 'left',
+        tooltipDiffX: 0,
+        tooltipDiffY: 10
+
+    };
+
+    function ajaxData() {
+        var entries = $.ajax({
+            async:false,
+            url:"/api/names",
+            type:"GET",
+            dataType: 'json',
+            success:function (data) {
+                return data
+            }
+        });
+        entries = entries.responseText.split("|");
+        return entries;
+    }
+
+    $('#getInfo').bind("click",function () {
+        var data = ajaxData();
+        settings['entries'] = $.parseJSON(data[0]);
+        $( '#holder' ).svg3DTagCloud( settings );
+        settings['entries'] = $.parseJSON(data[1]);
+        settings['bgColor'] = '#111';
+        settings['fontColor'] = '#eee';
+        $('#holder2').svg3DTagCloud( settings );
+        $('#tagBox').removeClass("collapsed-box");
+    })
+
+</script>
+</html>

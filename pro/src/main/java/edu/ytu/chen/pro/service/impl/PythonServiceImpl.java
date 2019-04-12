@@ -9,8 +9,6 @@ import java.io.InputStream;
 @Service
 public class PythonServiceImpl implements PythonService {
 
-
-
     @Override
     public String getPythonInfo() {
         String con = "";

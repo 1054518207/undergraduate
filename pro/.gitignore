@@ -87,3 +87,6 @@ rebel.xml
 bower_components
 dist
 plugins
+
+# jdbc.properties
+jdbc.properties
