@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>HTML5 Tetris</title>
+        <meta charset="utf-8" />
+        <link rel='stylesheet' href='static/css/style.css' >
+        <link rel="stylesheet" href="static/css/bootstrap.css">
+    </head>
+    <body>
+        <audio id="clearsound" src="static/sound/pop.ogg" preload="auto"></audio>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-10">
+            <div class="row text-center">
+                <div class="col-sm-5 text-right">
+                    <canvas width='300' height='600'></canvas>
+                </div>
+                <div class="col-sm-2"></div>
+                <div class="col-sm-5 text-left">
+                    <canvas width="300" height="600"></canvas>
+                </div>
+
+            </div>
+            <button id="playbutton" onclick="playButtonClicked();">Play</button>
+        </div>
+        <div class="col-sm-1"></div>
+    </body>
+
+    <script src="static/js/jquery-3.4.1.js"></script>
+    <script src="static/js/bootstrap.min.js" ></script>
+    <script src="static/js/TetrisClass1.js"></script>
+    <script src="static/js/TetrisClass2.js"></script>
+    <script src="static/js/wbSocket.js"></script>
+    <script type="text/javascript">
+        let webSocketHost = "ws://localhost:2222/tetris";
+        let tetris1;
+        let tetris2;
+        let cvs;
+        let ws;
+        let keys = {
+            37: 'left',
+            39: 'right',
+            40: 'down',
+            38: 'rotate',
+            32: 'drop'
+        };
+        let keys2 = {
+            65: 'left',
+            58: 'right',
+            83: 'down',
+            87: 'rotate',
+            82: 'drop'
+        };
+        function playButtonClicked() {
+            if(tetris1 !== "undefined")
+                tetris1 = null;
+            if(tetris2 !== "undefined")
+                tetris2 = null;
+            tetris1 = new Tetris(cvs[0],ws);
+            tetris2 = new Tetris2(cvs[1]);
+            document.getElementById("playbutton").disabled = true;
+            tetris1.newGame();
+            tetris2.newGame();
+        }
+        document.body.onkeydown = function( e ) {
+            if ( typeof keys[ e.keyCode ] !== 'undefined' ) {
+                tetris1.keyPress( keys[ e.keyCode ] );
+                tetris1.render();
+            }else if(typeof keys2[ e.keyCode ] !== 'undefined'){
+                tetris2.keyPress( keys2[ e.keyCode ] );
+                tetris2.render();
+            }
+        };
+        window.onload = () => {
+            ws = new WebSocket(webSocketHost);
+            cvs = document.getElementsByTagName( 'canvas' );
+        };
+    </script>
+</html>
