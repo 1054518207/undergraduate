@@ -11,20 +11,15 @@ class Tetris{
         this.currentX = 0; // position of current shape
         this.currentY = 0; // position of current shape
         this.freezed = false; // is current shape settled on the board?
+        // https://wiki.botzone.org.cn/index.php?title=Tetris 方块对应形状
         this.shapes = [
+            [ 1, 1, 1, 0, 1 ],
+            [ 1, 1, 1, 0, 0, 0, 1 ],
+            [ 0, 1, 1, 0, 1, 1 ],
+            [ 1, 1, 0, 0, 0, 1, 1 ],
+            [ 0, 1, 0, 0, 1, 1, 1 ],
             [ 1, 1, 1, 1 ],
-            [ 1, 1, 1, 0,
-                1 ],
-            [ 1, 1, 1, 0,
-                0, 0, 1 ],
-            [ 1, 1, 0, 0,
-                1, 1 ],
-            [ 1, 1, 0, 0,
-                0, 1, 1 ],
-            [ 0, 1, 1, 0,
-                1, 1 ],
-            [ 0, 1, 0, 0,
-                1, 1, 1 ]
+            [ 1, 1, 0, 0, 1, 1 ]
         ];
         this.colors = ['cyan', 'orange', 'blue', 'yellow', 'red', 'green', 'purple'];
         this.canvas = canvas;
@@ -34,7 +29,7 @@ class Tetris{
         this.BLOCK_W = this.W / this.COLS;
         this.BLOCK_H = this.H / this.ROWS;
         this.socket = socket;
-        // this.newGame();
+        this.record = [];
     }
 
     // clears the board
@@ -49,11 +44,14 @@ class Tetris{
 
     // creates a new 4x4 shape in global variable 'current'
     // 4x4 so as to cover the size when the shape is rotated
+    // 当需要生成方块时使用
     newShape() {
         let id = Math.floor( Math.random() * this.shapes.length );
         let shape = this.shapes[ id ]; // maintain id for color filling
 
+        this.record.push(id);
         this.current = [];
+
         for ( let y = 0; y < 4; ++y ) {
             this.current[ y ] = [];
             for ( let x = 0; x < 4; ++x ) {
@@ -66,6 +64,9 @@ class Tetris{
                 }
             }
         }
+
+        // 尝试返回数组形式
+        this.socket.send(this.record);
 
         // new shape starts to move
         this.freezed = false;

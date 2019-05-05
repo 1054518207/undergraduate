@@ -23,6 +23,7 @@ class IndexHandler(RequestHandler):
     def get(self):
         self.render("index.html")
 
+
 class MainHandler(WebSocketHandler):
     users = set()  # 用来存放在线用户的容器
 

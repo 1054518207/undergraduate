@@ -12,19 +12,13 @@ class Tetris2{
         this.currentY = 0; // position of current shape
         this.freezed = false; // is current shape settled on the board?
         this.shapes = [
+            [ 1, 1, 1, 0, 1 ],
+            [ 1, 1, 1, 0, 0, 0, 1 ],
+            [ 0, 1, 1, 0, 1, 1 ],
+            [ 1, 1, 0, 0, 0, 1, 1 ],
+            [ 0, 1, 0, 0, 1, 1, 1 ],
             [ 1, 1, 1, 1 ],
-            [ 1, 1, 1, 0,
-                1 ],
-            [ 1, 1, 1, 0,
-                0, 0, 1 ],
-            [ 1, 1, 0, 0,
-                1, 1 ],
-            [ 1, 1, 0, 0,
-                0, 1, 1 ],
-            [ 0, 1, 1, 0,
-                1, 1 ],
-            [ 0, 1, 0, 0,
-                1, 1, 1 ]
+            [ 1, 1, 0, 0, 1, 1 ]
         ];
         this.colors = ['cyan', 'orange', 'blue', 'yellow', 'red', 'green', 'purple'];
         this.canvas = canvas;
