@@ -30,6 +30,8 @@ class Tetris{
         this.BLOCK_H = this.H / this.ROWS;
         this.socket = socket;
         this.record = [];
+        this.boxid = -1;    //存放当前方块ID
+        this.model = 0;     //存放当前方块形状
     }
 
     // clears the board
@@ -66,7 +68,12 @@ class Tetris{
         }
 
         // 尝试返回数组形式
-        this.socket.send(this.record);
+        let jsonData = {
+            "squareId" : id,
+            "board":this.board
+        };
+        this.socket.send(JSON.stringify(jsonData));
+        this.boxid = id;
 
         // new shape starts to move
         this.freezed = false;
@@ -203,6 +210,9 @@ class Tetris{
                 let rotated = Tetris.rotate( this.current );
                 if ( this.valid( 0, 0, rotated ) ) {
                     this.current = rotated;
+                    this.model++;
+                    console.log("id:"+this.boxid+";model:"+this.model%4);
+                    console.log(this.current);
                 }
                 break;
             case 'drop':
@@ -243,5 +253,17 @@ class Tetris{
                 }
             }
         }
+    }
+
+    // 尝试根据参数自己走向想到的位置
+    forwardToPos(x,y,rotateId){
+        this.currentX = x;
+        this.currentY = y;
+        this.render();
+    }
+
+    // 自己走函数位置合法性判定
+    forwardValid(x,y,rotateId){
+
     }
 }
