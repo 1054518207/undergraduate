@@ -49,6 +49,7 @@ class Tetris {
     // 当需要生成方块时使用
     newShape() {
         let id = Math.floor(Math.random() * this.shapes.length);
+        // let id = 0;
         let shape = this.shapes[id]; // maintain id for color filling
 
         this.record.push(id);
@@ -78,7 +79,7 @@ class Tetris {
         // new shape starts to move
         this.freezed = false;
         // position where the shape will evolve
-        this.currentX = 5;
+        this.currentX = 0;
         this.currentY = 0;
     }
 
@@ -210,9 +211,6 @@ class Tetris {
                 let rotated = Tetris.rotate(this.current);
                 if (this.valid(0, 0, rotated)) {
                     this.current = rotated;
-                    this.model++;
-                    console.log("id:" + this.boxid + ";model:" + this.model % 4);
-                    console.log(this.current);
                 }
                 break;
             case 'drop':
@@ -257,9 +255,13 @@ class Tetris {
 
     // 尝试根据参数自己走向想到的位置
     forwardToPos(x, y, rotateId) {
-        if (this.forwardValid(x, y, rotateId)) {
+        let tmpRotate = this.current;
+        for (let i = 0; i < rotateId; i++) {
+            tmpRotate = Tetris.rotate(tmpRotate)
+        }
+        if (this.valid(x, 19-y, tmpRotate)) {
             this.currentX = x;
-            this.currentY = 20 - y;
+            this.currentY = 19 - y;
             for (let i = 0; i < rotateId; i++) {
                 this.current = Tetris.rotate(this.current);
             }
@@ -294,14 +296,44 @@ class Tetris {
     }
 
     checkL(x, y, rotateId) {
-        if (rotateId === 0) {
-            return !(this.board[x][-y + 20 - 1] > 0 || this.board[x][-y + 20] > 0 || this.board[x + 1][-y + 20] > 0 || this.board[x + 2][-y + 20] > 0);
+        if(y < 0 || y >= this.COLS || x < 0 || x >= this.ROWS)
+            return false;
+        else if (rotateId === 0) {
+            if( typeof this.board[x][-y + 20 - 1] === "undefined"
+                || typeof this.board[x][-y + 20] === "undefined"
+                || typeof this.board[x + 1][-y + 20] === "undefined"
+                || typeof this.board[x + 2][-y + 20] === "undefined"
+            )
+                return false;
+            else
+                return !(this.board[x][-y + 20 - 1] > 0 || this.board[x][-y + 20] > 0 || this.board[x + 1][-y + 20] > 0 || this.board[x + 2][-y + 20] > 0);
         } else if (rotateId === 1) {
-            return !(this.board[x][-y + 20] > 0 || this.board[x + 1][-y + 20] > 0 || this.board[x + 1][-y + 20 - 1] > 0 || this.board[x + 1][-y + 20 - 2] > 0);
+            if(typeof this.board[x][-y + 20] === "undefined"
+                || typeof this.board[x + 1][-y + 20] === "undefined"
+                || typeof this.board[x + 1][-y + 20 - 1] === "undefined"
+                || typeof this.board[x + 1][-y + 20 - 2] === "undefined"
+            )
+                return false;
+            else
+                return !(this.board[x][-y + 20] > 0 || this.board[x + 1][-y + 20] > 0 || this.board[x + 1][-y + 20 - 1] > 0 || this.board[x + 1][-y + 20 - 2] > 0);
         } else if (rotateId === 2) {
-            return !(this.board[x][-y + 20] > 0 || this.board[x - 2][-y + 20 + 1] > 0 || this.board[x - 1][-y + 20 + 1] > 0 || this.board[x][-y + 20 + 1] > 0);
+            if(typeof this.board[x][-y + 20] === "undefined"
+                || typeof this.board[x - 2][-y + 20 + 1] === "undefined"
+                || typeof this.board[x - 1][-y + 20 + 1] === "undefined"
+                || typeof this.board[x][-y + 20 + 1] === "undefined"
+            )
+                return false;
+            else
+                return !(this.board[x][-y + 20] > 0 || this.board[x - 2][-y + 20 + 1] > 0 || this.board[x - 1][-y + 20 + 1] > 0 || this.board[x][-y + 20 + 1] > 0);
         } else if (rotateId === 3) {
-            return !(this.board[x][-y + 20] > 0 || this.board[x][-y + 20 + 1] > 0 || this.board[x][-y + 20 + 2] > 0 || this.board[x + 1][-y + 20 + 2] > 0);
+            if(typeof this.board[x][-y + 20] === "undefined"
+                || typeof this.board[x][-y + 20 + 1] === "undefined"
+                || typeof this.board[x][-y + 20 + 2] === "undefined"
+                || typeof this.board[x + 1][-y + 20 + 2] === "undefined"
+            )
+                return false;
+            else
+                return !(this.board[x][-y + 20] > 0 || this.board[x][-y + 20 + 1] > 0 || this.board[x][-y + 20 + 2] > 0 || this.board[x + 1][-y + 20 + 2] > 0);
         } else {
             return false;
         }
@@ -309,6 +341,7 @@ class Tetris {
 
     checkJ(x, y, rotateId) {
         if (rotateId === 0) {
+
             return !(this.board[x][-y + 20 - 1] > 0 || this.board[x][-y + 20] > 0 || this.board[x + 1][-y + 20] > 0 || this.board[x + 2][-y + 20 + 2] > 0);
         } else if (rotateId === 1) {
             return !(this.board[x][-y + 20] > 0 || this.board[x][-y + 20 + 1] > 0 || this.board[x][-y + 20 + 2] > 0 || this.board[x - 1][-y + 20 + 2] > 0);

@@ -35,13 +35,10 @@ class MainHandler(WebSocketHandler):
 
     def on_message(self, message):
         print(message)
-        from methodTest import Method
-        m = Method()
-        data = m.getPos()
-        self.write_message(data)
-        # for u in self.users:  # 向在线用户广播消息
-        #     u.write_message(u"[%s]-[%s]-说：%s" % (
-        #     self.request.remote_ip, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message))
+        # from methodTest import Method
+        # m = Method()
+        # data = m.getPos()
+        # self.write_message(data)
 
     def on_close(self):
         self.users.remove(self)  # 用户关闭连接后从容器中移除用户
