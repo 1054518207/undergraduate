@@ -11,6 +11,7 @@ import tornado.httpserver
 import tornado.options
 import os
 import datetime
+import json
 
 from tornado.web import RequestHandler
 from tornado.options import define, options
@@ -33,12 +34,15 @@ class MainHandler(WebSocketHandler):
             u.write_message(
                 u"[%s]-[%s]-进入" % (self.request.remote_ip, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
-    def on_message(self, message):
-        print(message)
-        # from methodTest import Method
-        # m = Method()
-        # data = m.getPos()
-        # self.write_message(data)
+    def on_message(self, data):
+        from extractTetrisAlgorithm import AIWorker
+        data = json.loads(data)
+        center = [2,7]
+        shapeId = int(data['blockId'])
+        matrix = list(data['matrix'])
+        ai = AIWorker(center=center,shapeId=shapeId,matrix=matrix)
+        res = ai.mainProcess()
+        self.write_message(res)
 
     def on_close(self):
         self.users.remove(self)  # 用户关闭连接后从容器中移除用户

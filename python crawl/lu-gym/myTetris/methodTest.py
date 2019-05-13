@@ -102,7 +102,7 @@ class Method(object):
         self._starty = 9
         self.board = list(board)
         if 0 <= blockId < len(self.SHAPES):
-            self.block = self.SHAPES_WITH_DETAIL[self.SHAPES[blockId]]['shape1']
+            self.block = self.SHAPES_WITH_DETAIL[self.SHAPES[blockId]]['shape0']
         else:
             raise RuntimeError("blockId错误")
 
@@ -113,7 +113,8 @@ class Method(object):
         :return: list
         '''
         lt = []
-        for x in range(self.ROWS):
+        block = self.cutBlock(block)
+        for x in range(self.ROWS-1, -1, -1):
             for y in range(self.COLS):
                 if self.board[x][y] == 0 and self.valid(x, y, block):
                     pos = [x, y]
@@ -128,8 +129,8 @@ class Method(object):
         :param blockShape: 当前方块形状
         :return: 在此处放置是否合适
         '''
-        for x in range(3, -1, -1):
-            for y in range(0, 4):
+        for x in range(curRows - 1, -1, -1):
+            for y in range(curCols):
                 if blockShape[x][y] != 0:
                     try:
                         if 0 <= xPos + x and 0 <= yPos + y and self.board[xPos + x][yPos + y] != 0:
@@ -140,9 +141,61 @@ class Method(object):
                         return False
         return True
 
-    # def cutBlock(self,block):
-    #     for x in range(4):
-    #         if block[x][0] == 0 and block[x][0] == 0 and block[x][0] == 0 and block[x][0] == 0:
+    # def hasBottom(self,xPos,yPos):
+    #     block = self.cutBlock(self.block)
+    #     for x in range(curRows):
+    #         for y in range(curCols-1, -1, -1):
+    #             if block[x][y] != 0
+    #     return self.board[xPos][yPos+1] != 0
+
+    def cutBlock(self, block):
+        '''
+        裁剪方块
+        :param block: 原始方块
+        :return: 裁剪好之后的方块
+        '''
+        newBlock = []
+        cnt = 0
+        global curRows
+        global curCols
+        for x in range(4):
+            if block[x][0] == 0 and block[x][1] == 0 and block[x][2] == 0 and block[x][3] == 0:
+                continue
+            else:
+                lt = [block[x][0], block[x][1], block[x][2], block[x][3]]
+                newBlock.append(lt)
+                cnt += 1
+        fBlock = []
+        ax = []
+        ay = []
+        az = []
+        curRows = cnt
+        if cnt == 2:
+            for y in range(4):
+                if newBlock[0][y] == 0 and newBlock[1][y] == 0:
+                    continue
+                else:
+                    ax.append(newBlock[0][y])
+                    ay.append(newBlock[1][y])
+            fBlock = [ax, ay]
+            curCols = 3
+        elif cnt == 3:
+            for y in range(4):
+                if newBlock[0][y] == 0 and newBlock[1][y] == 0 and newBlock[2][y] == 0:
+                    continue
+                else:
+                    ax.append(newBlock[0][y])
+                    ay.append(newBlock[1][y])
+                    az.append(newBlock[2][y])
+            fBlock = [ax, ay, az]
+            curCols = 2
+        elif cnt == 4:
+            fBlock = [[1], [1], [1], [1]]
+            curCols = 1
+        else:
+            curCols = 4
+            fBlock = newBlock
+        return fBlock
 
     def getPos(self):
         data = {
@@ -151,10 +204,16 @@ class Method(object):
         }
         return json.dumps(data)
 
+
 if __name__ == '__main__':
-    board = [[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,1,1,1,1,1,1,1,1,1]]
-    blockL = [[1, 1, 1, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-    m = Method(blockId=0, board=board)
+    board = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+             [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+    m = Method(blockId=5, board=board)
     lt = m.get_all_gridpos(m.block)
     print(lt)
     # print(board[19][0])

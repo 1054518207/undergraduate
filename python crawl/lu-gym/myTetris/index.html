@@ -60,7 +60,6 @@
             document.getElementById("playbutton").disabled = true;
             tetris1.newGame();
             tetris2.newGame();
-            tetris1.forwardToPos(-2,2,1);
         }
         document.body.onkeydown = function( e ) {
             if ( typeof keys[ e.keyCode ] !== 'undefined' ) {
@@ -74,10 +73,6 @@
         window.onload = () => {
             ws = new WebSocket(webSocketHost);
             cvs = document.getElementsByTagName( 'canvas' );
-            ws.onmessage = (event) => {
-                // obj = JSON.parse(event.data);
-                // tetris1.forwardToPos(obj.x,obj.y);
-            };
         };
 
     </script>

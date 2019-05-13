@@ -32,6 +32,39 @@ class Tetris {
         this.record = [];
         this.blockid = -1;    //存放当前方块ID
         this.model = 0;     //存放当前方块形状
+        this.socket.onmessage = (data) =>{
+            data = JSON.parse(data['data']);
+            let center = data['center'];
+            let station = data['station'];
+            let x = center[1];
+            let y = center[0];
+            console.log(center,station);
+            switch (this.blockid) {
+                case 0:
+                    this.forwardToPos(this.transL(x,y,station));
+                    break;
+                case 1:
+                    this.forwardToPos(this.transJ(x,y,station));
+                    break;
+                case 2:
+                    this.forwardToPos(this.transS(x,y,station));
+                    break;
+                case 3:
+                    this.forwardToPos(this.transZ(x,y,station));
+                    break;
+                case 4:
+                    this.forwardToPos(this.transT(x,y,station));
+                    break;
+                case 5:
+                    this.forwardToPos(this.transI(x,y,station));
+                    break;
+                case 6:
+                    this.forwardToPos(this.transO(x,y,station));
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     // clears the board
@@ -49,7 +82,7 @@ class Tetris {
     // 当需要生成方块时使用
     newShape() {
         let id = Math.floor(Math.random() * this.shapes.length);
-        // let id = 0;
+        // let id = 6;
         let shape = this.shapes[id]; // maintain id for color filling
 
         this.record.push(id);
@@ -69,10 +102,9 @@ class Tetris {
 
         // 尝试返回数组形式
         let jsonData = {
-            "squareId": id,
-            "board": this.board
+            "blockId": id,
+            "matrix": this.board
         };
-        this.socket.send(JSON.stringify(jsonData));
         this.blockid = id;
         this.model = 0;
 
@@ -81,6 +113,7 @@ class Tetris {
         // position where the shape will evolve
         this.currentX = 0;
         this.currentY = 0;
+        this.socket.send(JSON.stringify(jsonData));
     }
 
     // checks if the resulting position of current shape will be feasible
@@ -254,7 +287,10 @@ class Tetris {
     }
 
     // 尝试根据参数自己走向想到的位置
-    forwardToPos(x, y, rotateId) {
+    forwardToPos(res) {
+        let x = res[0];
+        let y = res[1];
+        let rotateId = res[2];
         let tmpRotate = this.current;
         for (let i = 0; i < rotateId; i++) {
             tmpRotate = Tetris.rotate(tmpRotate)
@@ -422,5 +458,82 @@ class Tetris {
         } else {
             return false;
         }
+    }
+
+    //转换函数区域
+    transL(x, y, rotateId){
+        let res= [];
+        if(rotateId === 0){
+            res.push(x,22-y,3)
+        }else if(rotateId === 1){
+            res.push(x,19-y,0);
+        }else if(rotateId === 2){
+            res.push(x-3,19-y,1);
+        }else{
+            res.push(x-3,22-y,2);
+        }
+        return res;
+    }
+
+    transJ(x,y,rotateId){
+        let res = [];
+        if(rotateId === 0){
+            res.push(x-3,21-y,1)
+        }else if(rotateId === 1){
+            res.push(x-1,22-y,2);
+        }else if(rotateId === 2){
+            res.push(x,20-y,3);
+        }else{
+            res.push(x-2,19-y,0);
+        }
+        return res;
+    }
+
+    transS(x,y,rotateId){
+        let res = [];
+        if(rotateId === 0){
+            res.push(x-2,20-y,1);
+        }else{
+            res.push(x-1,19-y,0);
+        }
+        return res;
+    }
+
+    transZ(x,y,rotateId){
+        let res = [];
+        if(rotateId === 0){
+            res.push(x-1,19-y,0)
+        }else{
+            res.push(x-3,20-y,1);
+        }
+        return res;
+    }
+
+    transT(x,y,rotateId){
+        let res = [];
+        if(rotateId === 0){
+            res.push(x-1,20-y,0)
+        }else if(rotateId === 1){
+            res.push(x-2,20-y,1);
+        }else if(rotateId === 2){
+            res.push(x-2,21-y,2);
+        }else{
+            res.push(x-1,21-y,3);
+        }
+        return res;
+    }
+
+    transI(x,y,rotateId){
+        let res = [];
+        if(rotateId === 0){
+            res.push(x-1,19-y,0);
+        }else{
+            res.push(x-3,20-y,1);
+        }
+        return res;
+    }
+
+    transO(x,y,rotateId){
+        return [x,19-y,0];
     }
 }
